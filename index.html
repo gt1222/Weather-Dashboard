@@ -22,22 +22,22 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="column col-3">
+            <div class="column col-3" id="search-area">
                 <h3>Search for a City:</h3>
                 <form>
-                    <input type="text" placeholder="Enter City">
+                    <input id="search-input" type="text" placeholder="Enter City">
                     <button id="search-btn"><i class="fas fa-search"></i></button>
                 </form>
 
                 <div>
-                    <ul>
+                    <ul id="search-history">
                         <!-- append search history list here -->
                     </ul>
                 </div>
             </div>
 
             <div class="column col-9">
-                <div class="row" id="currentweather">
+                <div class="row" id="current-weather">
                     <!-- current weather condition -->
                 </div>
 
