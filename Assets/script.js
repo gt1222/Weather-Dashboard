@@ -4,7 +4,7 @@ var date = moment().format("M/D/YYYY");
 var searchButton = document.getElementById("search-btn")
 var searchHistoryList = document.getElementById("search-history")
 var currentWeather = document.getElementById("current-weather")
-var futureWeather = document.getElementById("five-day")
+var futureWeather = document.getElementById("five-day-area")
 
 
 var iconUrl = "http://openweathermap.org/img/wn/10d@2x.png"
@@ -22,12 +22,12 @@ function searchParameters () {
     //get query value
     var queryCity = searchParametersArr[1];
 
-    searchAPI(queryCity)
+    searchAPI(queryCity);
 }
 
 //fetching data from OpenWeather API
-function searchAPI (city) {
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + apiKey + "&units=imperial";
+function searchAPI (cityName) {
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=ade1a4570ddcdc0f151deaf9487554c1&units=imperial";
 
     fetch (queryURL)
     .then(function (response) {
@@ -42,16 +42,16 @@ function searchAPI (city) {
         console.log(lon)
         var lat = data.coord.lat;
         console.log(lat)
-        displayWeather(data, lon, lat);
+        displayWeather(data);
         displayForecast(lon, lat);
-        saveHistory(data);
-        renderHistory(data);
+        // saveHistory(data);
+        // renderHistory(data);
       })
 };
 
 // WHEN I view current weather conditions for that city
 // THEN I am presented with the city name, the date, an icon representation of weather conditions, the temperature, the humidity, the wind speed, and the UV index
-function displayWeather(results, lon, lat) {
+function displayWeather(results) {
     var currentCard = document.createElement("div");
     currentCard.cardList.add("current-weather-card");
 
@@ -66,7 +66,18 @@ function displayWeather(results, lon, lat) {
     var cityTemp = document.createElement("li");
     var cityWind = document.createElement("li");
     var cityHumidity = document.createElement("li");
-}
+
+    cityTemp.textContent = "Temperature: " + results.main.temp + "°F";
+    cityWind.textContent = "Wind Speed: " + results.wind.speed + "MPH";
+    cityHumidity.textContent = "Humidity: " + results.main.humidity + "%";
+
+    cityInfo.appendChild(cityTitle);
+    cityInfo.appendChild(weatherIcon);
+    cityInfo.appendChild(cityTemp);
+    cityInfo.appendChild(cityWind);
+    cityInfo.appendChild(cityHumidity);
+
+};
 
 // The instructor told us we don't have to do the UV index part because it was updated recently and we can't really use it without being charged
 
@@ -74,8 +85,72 @@ function displayWeather(results, lon, lat) {
 // WHEN I view future weather conditions for that city
 // THEN I am presented with a 5-day forecast that displays the date, an icon representation of weather conditions, the temperature, the wind speed, and the humidity
 
-function displayForecast() {
+function displayForecast(lon, lat) {
+    var queryForecast = "api.openweathermap.org/data/2.5/forecast?lat="+ lat + "&lon=" + lon + "&appid=ade1a4570ddcdc0f151deaf9487554c1&units=imperial"
 
+    fetch (queryForecast)
+    .then(function (response) {
+        if (!response.ok) {
+          throw response.json();
+        }
+  
+        return response.json();
+      })
+      .then(function (forecastData) {
+        for (var i = 0; i<5; i++) {
+            var futureWeather = forecastData.list[i];
+
+            var futureCard = document.createElement("div");
+            futureCard.classList.add("future-weather-card");
+
+            var futureCityTitle = document.createElement("h2");
+            futureDate = moment().subtract(0-i, "days").format("MM/DD/YYYY");
+            futureCityTitle.textContent = futureDate;
+
+            var futureIcon = document.createElement("img");
+            var futureIconUrl = "http://openweathermap.org/img/wn/"+ futureWeather.weather[0].icon+ "@2x.png";
+            futureIcon.src = futureIconUrl
+
+            var futureInfo = document.createElement("ul");
+            var futureTemp = document.createElement("li");
+            var futureWind = document.createElement("li");
+            var futureHumidity = document.createElement("li");
+
+            futureTemp.textContent = "Temperature: " + futureWeather.main.temp + "°F";
+
+            futureWind.textContent = "Wind Speed: " + futureWeather.wind.speed + "MPH";
+        
+            futureHumidity.textContent = "Humidity: " + futureWeather.main.humidity + "%";
+
+            futureInfo.appendChild(futureCityTitle);
+            futureInfo.appendChild(futureIcon);
+            futureInfo.appendChild(futureTemp);
+            futureInfo.appendChild(futureWind);
+            futureInfo.appendChild(futureHumidity);
+            futureCard.appendChild(futureInfo);
+
+            futureWeather.appendChild(futureCard);
+
+        }
+    })
+
+};
+
+function cityInput(event) {
+    event.preventDefault();
+    if (event.target.textContent === "Search") {
+        var cityName = document.getElementById("search-input").value;
+        console.log(cityName);
+
+        if (!cityName) {
+            console.log("Please enter a city name");
+            return;
+        }
+    }else {
+        var cityName = event.target.textContent;
+    }
+    searchAPI(cityName);
+    cityName.value = "";
 }
 
 // WHEN I click on a city in the search history
@@ -88,7 +163,10 @@ function renderHistory() {
 
 }
 
-// searchButton.addEventListener("submit")
+searchButton.addEventListener("click", cityInput);
+
+searchParameters();
+
 
 // requestUrl = "https://api.openweathermap.org/data/2.5/weather?q=Denver&appid=ade1a4570ddcdc0f151deaf9487554c1&units=imperial"
 
