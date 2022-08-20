@@ -1,66 +1,67 @@
-var apiKey = "ade1a4570ddcdc0f151deaf9487554c1";
-var date = moment().format("M/D/YYYY");
+// var apiKey = "ade1a4570ddcdc0f151deaf9487554c1";
+var currentDate = moment().format("M/D/YYYY");
 
-var searchButton = document.getElementById("search-btn")
-var searchHistoryList = document.getElementById("search-history")
-var currentWeather = document.getElementById("current-weather")
-var futureWeather = document.getElementById("five-day-area")
-
-
-var iconUrl = "http://openweathermap.org/img/wn/10d@2x.png"
+// var searchButton = document.getElementById("search-btn")
+// var searchHistoryList = document.getElementById("search-history")
+var currentWeatherEl = document.getElementById("current-weather")
+var futureWeatherEl = document.querySelector(".five-day-area")
+console.log(futureWeatherEl)
 
 
-// GIVEN a weather dashboard with form inputs
-// WHEN I search for a city
-// THEN I am presented with current and future conditions for that city and that city is added to the search history
+// var iconUrl = "http://openweathermap.org/img/wn/10d@2x.png"
 
-//Get parameters from URL
-function searchParameters () {
-    //get city name out of search parameter of URL
-    var searchParametersArr = document.location.search.split("=")
 
-    //get query value
-    var queryCity = searchParametersArr[1];
+// // GIVEN a weather dashboard with form inputs
+// // WHEN I search for a city
+// // THEN I am presented with current and future conditions for that city and that city is added to the search history
 
-    searchAPI(queryCity);
-}
+// //Get parameters from URL
+// function searchParameters () {
+//     //get city name out of search parameter of URL
+//     var searchParametersArr = document.location.search.split("=")
 
-//fetching data from OpenWeather API
-function searchAPI (cityName) {
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=ade1a4570ddcdc0f151deaf9487554c1&units=imperial";
+//     //get query value
+//     var queryCity = searchParametersArr[1];
 
-    fetch (queryURL)
-    .then(function (response) {
-        if (!response.ok) {
-          throw response.json();
-        }
+//     searchAPI(queryCity);
+// }
+
+// //fetching data from OpenWeather API
+// function searchAPI (cityName) {
+//     var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=ade1a4570ddcdc0f151deaf9487554c1&units=imperial";
+
+//     fetch (queryURL)
+//     .then(function (response) {
+//         if (!response.ok) {
+//           throw response.json();
+//         }
   
-        return response.json();
-      })
-      .then(function (data) { 
-        var lon = data.coord.lon;
-        console.log(lon)
-        var lat = data.coord.lat;
-        console.log(lat)
-        displayWeather(data);
-        displayForecast(lon, lat);
-        // saveHistory(data);
-        // renderHistory(data);
-      })
-};
+//         return response.json();
+//       })
+//       .then(function (data) { 
+//         var lon = data.coord.lon;
+//         console.log(lon)
+//         var lat = data.coord.lat;
+//         console.log(lat)
+//         displayWeather(data);
+//         displayForecast(lon, lat);
+//         // saveHistory(data);
+//         // renderHistory(data);
+//       })
+// };
 
-// WHEN I view current weather conditions for that city
-// THEN I am presented with the city name, the date, an icon representation of weather conditions, the temperature, the humidity, the wind speed, and the UV index
+// // WHEN I view current weather conditions for that city
+// // THEN I am presented with the city name, the date, an icon representation of weather conditions, the temperature, the humidity, the wind speed, and the UV index
 function displayWeather(results) {
     var currentCard = document.createElement("div");
-    currentCard.cardList.add("current-weather-card");
+    currentCard.classList.add("current-weather-card");
 
     var cityTitle = document.createElement("h2");
-    cityTitle.textContent = results.name +" ("+ currentDate + ")";
+    cityTitle.textContent = results.name + " (" + currentDate + ")";
 
     var weatherIcon = document.createElement("img");
     var iconUrl = "http://openweathermap.org/img/wn/" + results.weather[0].icon + "@2x.png";
-    weatherIcon.sr = iconUrl
+    weatherIcon.src = iconUrl
 
     var cityInfo = document.createElement("ul");
     var cityTemp = document.createElement("li");
@@ -68,7 +69,7 @@ function displayWeather(results) {
     var cityHumidity = document.createElement("li");
 
     cityTemp.textContent = "Temperature: " + results.main.temp + "°F";
-    cityWind.textContent = "Wind Speed: " + results.wind.speed + "MPH";
+    cityWind.textContent = "Wind Speed: " + results.wind.speed + " MPH";
     cityHumidity.textContent = "Humidity: " + results.main.humidity + "%";
 
     cityInfo.appendChild(cityTitle);
@@ -77,16 +78,19 @@ function displayWeather(results) {
     cityInfo.appendChild(cityWind);
     cityInfo.appendChild(cityHumidity);
 
+    currentCard.append(cityInfo);
+    currentWeatherEl.append(currentCard);
+
 };
 
-// The instructor told us we don't have to do the UV index part because it was updated recently and we can't really use it without being charged
+// // The instructor told us we don't have to do the UV index part because it was updated recently and we can't really use it without being charged
 
 
-// WHEN I view future weather conditions for that city
-// THEN I am presented with a 5-day forecast that displays the date, an icon representation of weather conditions, the temperature, the wind speed, and the humidity
+// // WHEN I view future weather conditions for that city
+// // THEN I am presented with a 5-day forecast that displays the date, an icon representation of weather conditions, the temperature, the wind speed, and the humidity
 
 function displayForecast(lon, lat) {
-    var queryForecast = "api.openweathermap.org/data/2.5/forecast?lat="+ lat + "&lon=" + lon + "&appid=ade1a4570ddcdc0f151deaf9487554c1&units=imperial"
+    var queryForecast = "https://api.openweathermap.org/data/2.5/forecast?lat="+ lat + "&lon=" + lon + "&appid=ade1a4570ddcdc0f151deaf9487554c1&units=imperial"
 
     fetch (queryForecast)
     .then(function (response) {
@@ -97,13 +101,14 @@ function displayForecast(lon, lat) {
         return response.json();
       })
       .then(function (forecastData) {
-        for (var i = 0; i<5; i++) {
+        for (var i = 1; i<6; i++) {
             var futureWeather = forecastData.list[i];
+            console.log(futureWeather)
 
             var futureCard = document.createElement("div");
             futureCard.classList.add("future-weather-card");
 
-            var futureCityTitle = document.createElement("h2");
+            var futureCityTitle = document.createElement("h3");
             futureDate = moment().subtract(0-i, "days").format("MM/DD/YYYY");
             futureCityTitle.textContent = futureDate;
 
@@ -129,69 +134,75 @@ function displayForecast(lon, lat) {
             futureInfo.appendChild(futureHumidity);
             futureCard.appendChild(futureInfo);
 
-            futureWeather.appendChild(futureCard);
-
+            futureCard.append(futureInfo);
+            futureWeatherEl.append(futureCard);
         }
     })
 
 };
 
-function cityInput(event) {
-    event.preventDefault();
-    if (event.target.textContent === "Search") {
-        var cityName = document.getElementById("search-input").value;
-        console.log(cityName);
+// function cityInput(event) {
+//     event.preventDefault();
+//     if (event.target.textContent === "Search") {
+//         var cityName = document.getElementById("search-input").value;
+//         console.log(cityName);
 
-        if (!cityName) {
-            console.log("Please enter a city name");
-            return;
-        }
-    }else {
-        var cityName = event.target.textContent;
-    }
-    searchAPI(cityName);
-    cityName.value = "";
-}
+//         if (!cityName) {
+//             console.log("Please enter a city name");
+//             return;
+//         }
+//     }else {
+//         var cityName = event.target.textContent;
+//     }
+//     searchAPI(cityName);
+//     cityName.value = "";
+// }
 
-// WHEN I click on a city in the search history
-// THEN I am again presented with current and future conditions for that city
-function saveHistory() {
+// // WHEN I click on a city in the search history
+// // THEN I am again presented with current and future conditions for that city
+// function saveHistory() {
 
-}
+// }
 
-function renderHistory() {
+// function renderHistory() {
 
-}
+// }
 
-searchButton.addEventListener("click", cityInput);
+// searchButton.addEventListener("click", cityInput);
 
-searchParameters();
+// searchParameters();
 
 
-// requestUrl = "https://api.openweathermap.org/data/2.5/weather?q=Denver&appid=ade1a4570ddcdc0f151deaf9487554c1&units=imperial"
+requestUrl = "https://api.openweathermap.org/data/2.5/weather?q=Denver&appid=ade1a4570ddcdc0f151deaf9487554c1&units=imperial"
 
-// fetch (requestUrl, {
-//   method: "Get",
-//   credential: "same-origin",
-//   redirect: "follow",
-// })
-//   .then(function (response) {
-//     return response.json();
-//   })
-//   .then(function (data) {
-//     console.log(data);
-//     var cityName = data.name
-//     console.log(cityName)
-//     var icon = data.weather[0].icon
-//     console.log(icon)
-//     var temperature = data.main.temp
-//     console.log(temperature)
-//     var humidity = data.main.humidity
-//     console.log(humidity)
-//     var windspeed = data.wind.speed
-//     console.log(windspeed)
-//     displayWeather(data)
-// });
+fetch (requestUrl, {
+  method: "Get",
+  credential: "same-origin",
+  redirect: "follow",
+})
+  .then(function (response) {
+    return response.json();
+  })
+  .then(function (data) {
+    console.log(data);
+    var cityName = data.name
+    console.log(cityName)
+    var icon = data.weather[0].icon
+    console.log(icon)
+    var temperature = data.main.temp
+    console.log(temperature)
+    var humidity = data.main.humidity
+    console.log(humidity)
+    var windspeed = data.wind.speed
+    console.log(windspeed)
+    displayWeather(data)
+
+    var lon = data.coord.lon
+    console.log(lon)
+    var lat = data.coord.lat
+    console.log(lat)
+    displayForecast(lon, lat)
+});
 
 // function displayIntroWeather(results) {
 //     console
